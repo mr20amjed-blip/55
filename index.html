@@ -1,0 +1,413 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>أمجد للألعاب | عالم PS4</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#050b18;color:white;
+ font-family:Tahoma,Arial,sans-serif;
+}
+header{
+ background:#07152b;
+ border-bottom:2px solid #087cff;
+}
+.banner{
+ width:100%;height:auto;display:block;
+ max-height:260px;object-fit:cover;
+}
+.nav{
+ display:flex;gap:9px;align-items:center;
+ padding:13px;overflow-x:auto;
+ background:#091a32;
+}
+.nav button,.category{
+ border:1px solid #1266bd;
+ background:#102747;color:white;
+ padding:10px 16px;border-radius:9px;
+ white-space:nowrap;cursor:pointer;
+}
+.nav button:hover,.category.active{
+ background:#087cff;
+}
+.container{max-width:1200px;margin:auto;padding:16px}
+h2{color:#36a2ff}
+.search{
+ width:100%;padding:14px;border-radius:10px;
+ background:#101f35;border:1px solid #1765a7;
+ color:white;font-size:16px;margin:12px 0;
+}
+.categories{
+ display:flex;gap:8px;overflow-x:auto;
+ padding:10px 0 18px;
+}
+.grid{
+ display:grid;
+ grid-template-columns:repeat(auto-fill,minmax(145px,1fr));
+ gap:13px;
+}
+.game{
+ background:#101d32;border:1px solid #193b60;
+ border-radius:12px;overflow:hidden;
+}
+.game img{
+ width:100%;height:190px;object-fit:cover;
+ background:#172b44;
+}
+.game-info{padding:10px}
+.game h3{font-size:14px;min-height:34px;margin:4px 0 9px}
+.size{color:#5bb5ff;font-size:13px}
+.game label{
+ display:flex;align-items:center;gap:6px;
+ margin-top:10px;font-size:13px;
+}
+.game input{width:18px;height:18px}
+.empty{
+ text-align:center;padding:35px;color:#aabbd0;
+}
+.cart{
+ position:sticky;bottom:0;
+ background:#102541;border-top:2px solid #087cff;
+ padding:14px;z-index:5;
+ display:flex;align-items:center;
+ justify-content:space-between;gap:10px;
+ flex-wrap:wrap;
+}
+.mainbtn{
+ background:#087cff;color:white;
+ border:0;border-radius:9px;
+ padding:12px 18px;cursor:pointer;font-weight:bold;
+}
+.whatsapp{background:#168b48}
+.danger{background:#a52b36}
+.admin{
+ display:none;background:#101f35;
+ padding:18px;border:1px solid #1765a7;
+ border-radius:12px;margin:20px 0;
+}
+.admin input,.admin select{
+ width:100%;padding:12px;margin:7px 0 13px;
+ background:#07152b;color:white;
+ border:1px solid #27649a;border-radius:7px;
+}
+.admin label{display:block;color:#a9c9ec}
+.admin h3{color:#4daaff}
+.admin-actions{display:flex;gap:8px;flex-wrap:wrap}
+footer{
+ text-align:center;padding:25px;color:#7f9ab8;
+ background:#071326;margin-top:30px;
+}
+@media(min-width:700px){
+ .grid{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
+ .game img{height:240px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+ <img class="banner" src="banner.jpg" alt="أمجد للألعاب">
+ <div class="nav">
+  <strong>🎮 أمجد للألعاب</strong>
+  <button onclick="showAll()">الرئيسية</button>
+  <button onclick="toggleAdmin()">إدارة الألعاب ⚙️</button>
+ </div>
+</header>
+
+<main class="container">
+
+ <h2>🎮 عالم ألعاب البلايستيشن 4</h2>
+ <p>اختار ألعابك واجمع طلبك وأرسله إلينا مباشرة.</p>
+
+ <input class="search" id="search"
+ placeholder="🔍 ابحث عن اسم اللعبة..."
+ oninput="renderGames()">
+
+ <div class="categories" id="categories"></div>
+
+ <section class="grid" id="games"></section>
+
+ <section class="admin" id="admin">
+  <h2>⚙️ لوحة إدارة أمجد للألعاب</h2>
+  <h3>إضافة لعبة جديدة</h3>
+
+  <label>اسم اللعبة</label>
+  <input id="gameName" placeholder="مثلاً: God of War">
+
+  <label>حجم اللعبة GB</label>
+  <input id="gameSize" type="number" min="0.1" step="0.1"
+  placeholder="مثلاً: 45">
+
+  <label>تصنيف اللعبة</label>
+  <select id="gameCategory"></select>
+
+  <label>صورة اللعبة</label>
+  <input id="gameImage" type="file" accept="image/*">
+
+  <div class="admin-actions">
+   <button class="mainbtn" onclick="saveGame()">💾 حفظ اللعبة</button>
+   <button class="mainbtn danger" onclick="cancelEdit()">إلغاء التعديل</button>
+  </div>
+
+  <h3>الألعاب الموجودة</h3>
+  <div id="manageGames"></div>
+ </section>
+
+</main>
+
+<div class="cart">
+ <div>
+  <strong>🛒 الألعاب المحددة: <span id="count">0</span></strong>
+  <div class="size">الحجم الكلي: <span id="total">0</span> GB</div>
+ </div>
+ <button class="mainbtn whatsapp" onclick="sendOrder()">
+  إرسال الطلب واتساب
+ </button>
+</div>
+
+<footer>
+ <h3>أمجد للألعاب 🎮</h3>
+ عالم ألعاب البلايستيشن 4
+ <p>مكتب حمزة الشاوي</p>
+</footer>
+
+<script>
+const WHATSAPP = "9647818402769";
+
+const categories = [
+ "الكل",
+ "أكشن",
+ "مغامرات",
+ "حروب",
+ "سيارات وسباقات",
+ "رعب وزومبي",
+ "رياضة وكرة قدم",
+ "عالم مفتوح",
+ "ألعاب أخرى"
+];
+
+let games = JSON.parse(localStorage.getItem("amjadGames") || "[]");
+let selected = [];
+let currentCategory = "الكل";
+let editId = null;
+
+const $ = id => document.getElementById(id);
+
+function saveStorage(){
+ localStorage.setItem("amjadGames",JSON.stringify(games));
+}
+
+function setupCategories(){
+ $("categories").innerHTML = categories.map(c=>
+ `<button class="category ${c==="الكل"?"active":""}"
+ onclick="chooseCategory('${c}')">${c}</button>`
+ ).join("");
+
+ $("gameCategory").innerHTML = categories.slice(1).map(c=>
+ `<option value="${c}">${c}</option>`
+ ).join("");
+}
+
+function chooseCategory(category){
+ currentCategory=category;
+ document.querySelectorAll(".category").forEach(b=>{
+  b.classList.toggle("active",b.textContent===category);
+ });
+ renderGames();
+}
+
+function showAll(){
+ currentCategory="الكل";
+ $("search").value="";
+ chooseCategory("الكل");
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function renderGames(){
+ const search=$("search").value.toLowerCase();
+
+ const filtered=games.filter(g=>
+  (currentCategory==="الكل"||g.category===currentCategory)&&
+  g.name.toLowerCase().includes(search)
+ );
+
+ if(!filtered.length){
+  $("games").innerHTML='<div class="empty">لا توجد ألعاب حالياً في هذا القسم.</div>';
+  return;
+ }
+
+ $("games").innerHTML=filtered.map(g=>`
+ <article class="game">
+  <img src="${g.image||''}" alt="${g.name}">
+  <div class="game-info">
+   <h3>${escapeHTML(g.name)}</h3>
+   <div class="size">${g.size} GB</div>
+   <small>${escapeHTML(g.category)}</small>
+   <label>
+    <input type="checkbox"
+     ${selected.includes(g.id)?"checked":""}
+     onchange="selectGame('${g.id}',this.checked)">
+    تحديد اللعبة
+   </label>
+  </div>
+ </article>
+ `).join("");
+
+ updateCart();
+}
+
+function escapeHTML(s){
+ return String(s).replace(/[&<>"']/g,c=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",
+  '"':"&quot;","'":"&#39;"
+ }[c]));
+}
+
+function selectGame(id,checked){
+ if(checked){
+  if(!selected.includes(id))selected.push(id);
+ }else{
+  selected=selected.filter(x=>x!==id);
+ }
+ updateCart();
+}
+
+function updateCart(){
+ const chosen=games.filter(g=>selected.includes(g.id));
+ const total=chosen.reduce((sum,g)=>sum+Number(g.size),0);
+ $("count").textContent=chosen.length;
+ $("total").textContent=total.toFixed(2);
+}
+
+function sendOrder(){
+ const chosen=games.filter(g=>selected.includes(g.id));
+
+ if(!chosen.length){
+  alert("حدد لعبة واحدة على الأقل.");
+  return;
+ }
+
+ const total=chosen.reduce((sum,g)=>sum+Number(g.size),0);
+
+ let message="🎮 طلب ألعاب جديد - أمجد للألعاب\n\n";
+ chosen.forEach((g,i)=>{
+  message+=`${i+1}- ${g.name} | ${g.size} GB\n`;
+ });
+ message+=`\nعدد الألعاب: ${chosen.length}`;
+ message+=`\nالحجم الكلي: ${total.toFixed(2)} GB`;
+ message+="\n\nأرجو تأكيد الطلب. شكراً لكم ❤️";
+
+ const url="https://wa.me/"+WHATSAPP+
+ "?text="+encodeURIComponent(message);
+
+ window.open(url,"_blank");
+}
+
+function toggleAdmin(){
+ const a=$("admin");
+ a.style.display=a.style.display==="block"?"none":"block";
+ if(a.style.display==="block"){
+  renderManage();
+  a.scrollIntoView({behavior:"smooth"});
+ }
+}
+
+function saveGame(){
+ const name=$("gameName").value.trim();
+ const size=Number($("gameSize").value);
+ const category=$("gameCategory").value;
+ const file=$("gameImage").files[0];
+
+ if(!name||!size||size<=0){
+  alert("أدخل اسم اللعبة والحجم الصحيح.");
+  return;
+ }
+
+ function finish(image){
+  if(editId){
+   const g=games.find(x=>x.id===editId);
+   if(g){
+    g.name=name;
+    g.size=size;
+    g.category=category;
+    if(image)g.image=image;
+   }
+  }else{
+   games.push({
+    id:String(Date.now())+Math.random().toString(16).slice(2),
+    name,size,category,image:image||""
+   });
+  }
+
+  saveStorage();
+  cancelEdit();
+  renderGames();
+  renderManage();
+  alert("تم حفظ اللعبة بنجاح");
+ }
+
+ if(file){
+  const reader=new FileReader();
+  reader.onload=()=>finish(reader.result);
+  reader.onerror=()=>alert("تعذر قراءة الصورة");
+  reader.readAsDataURL(file);
+ }else{
+  if(!editId){
+   alert("اختر صورة اللعبة.");
+   return;
+  }
+  finish(null);
+ }
+}
+
+function renderManage(){
+ $("manageGames").innerHTML=games.map(g=>`
+ <div style="padding:10px;border-bottom:1px solid #345">
+  <strong>${escapeHTML(g.name)}</strong>
+  - ${g.size} GB
+  <div class="admin-actions" style="margin-top:8px">
+   <button class="mainbtn" onclick="editGame('${g.id}')">تعديل</button>
+   <button class="mainbtn danger" onclick="deleteGame('${g.id}')">حذف</button>
+  </div>
+ </div>
+ `).join("")||"لا توجد ألعاب مضافة.";
+}
+
+function editGame(id){
+ const g=games.find(x=>x.id===id);
+ if(!g)return;
+ editId=id;
+ $("gameName").value=g.name;
+ $("gameSize").value=g.size;
+ $("gameCategory").value=g.category;
+ $("gameImage").value="";
+ $("admin").scrollIntoView({behavior:"smooth"});
+}
+
+function deleteGame(id){
+ if(!confirm("هل تريد حذف هذه اللعبة؟"))return;
+ games=games.filter(g=>g.id!==id);
+ selected=selected.filter(x=>x!==id);
+ saveStorage();
+ renderGames();
+ renderManage();
+}
+
+function cancelEdit(){
+ editId=null;
+ $("gameName").value="";
+ $("gameSize").value="";
+ $("gameImage").value="";
+}
+
+setupCategories();
+renderGames();
+</script>
+
+</body>
+</html>
