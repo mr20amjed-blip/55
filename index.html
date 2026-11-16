@@ -409,5 +409,89 @@ setupCategories();
 renderGames();
 </script>
 
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-app.js";
+  import {
+    getAuth,
+    signInWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-auth.js";
+  import {
+    getFirestore,
+    collection,
+    getDocs,
+    addDoc,
+    updateDoc,
+    deleteDoc,
+    doc
+  } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDPhZlgFtDDvc7iaB24vlbGRwv66-KeJYE",
+    authDomain: "amjad-games.firebaseapp.com",
+    projectId: "amjad-games",
+    storageBucket: "amjad-games.firebasestorage.app",
+    messagingSenderId: "38836721122",
+    appId: "1:38836721122:web:7395acf82fc89f974dd5bb",
+    measurementId: "G-D9MBJKLHPT"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // تسجيل دخول المدير
+  window.firebaseAdminLogin = async function(email, password) {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      return true;
+    } catch (error) {
+      alert("فشل تسجيل الدخول: " + error.message);
+      return false;
+    }
+  };
+
+  // تسجيل الخروج
+  window.firebaseAdminLogout = async function() {
+    await signOut(auth);
+  };
+
+  // التحقق من حساب المدير
+  window.firebaseAuth = auth;
+  window.firebaseOnAuthChanged = onAuthStateChanged;
+
+  // جلب الألعاب
+  window.loadFirebaseGames = async function() {
+    const snapshot = await getDocs(collection(db, "games"));
+    return snapshot.docs.map(item => ({
+      id: item.id,
+      ...item.data()
+    }));
+  };
+
+  // إضافة لعبة
+  window.addFirebaseGame = async function(game) {
+    if (!auth.currentUser) throw new Error("يجب تسجيل دخول المدير");
+    return await addDoc(collection(db, "games"), game);
+  };
+
+  // تعديل لعبة
+  window.updateFirebaseGame = async function(id, game) {
+    if (!auth.currentUser) throw new Error("يجب تسجيل دخول المدير");
+    await updateDoc(doc(db, "games", id), game);
+  };
+
+  // حذف لعبة
+  window.deleteFirebaseGame = async function(id) {
+    if (!auth.currentUser) throw new Error("يجب تسجيل دخول المدير");
+    await deleteDoc(doc(db, "games", id));
+  };
+
+  console.log("Firebase connected successfully");
+</script>
+</body>
+</html>
+
 </body>
 </html>
