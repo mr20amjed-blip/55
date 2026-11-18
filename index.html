@@ -34,10 +34,10 @@ h2{color:#36a2ff}
 .admin-actions{display:flex;gap:8px;flex-wrap:wrap}
 .manage-row{padding:10px;border-bottom:1px solid #345}
 .status{margin:10px 0;padding:10px;border-radius:8px;background:#172b44;color:#c7e2ff}
-.hero-ad{display:none;width:100%;min-width:0;margin:16px 0;border:1px solid #1765a7;border-radius:14px;overflow:hidden;background:#102541}
+.hero-ad{display:block;width:100%;min-width:0;margin:16px 0;border:1px solid #1765a7;border-radius:14px;overflow:hidden;background:#102541}
 .hero-ad img{width:100%;height:auto;max-height:none;object-fit:contain;display:block}
 .hero-ad img[hidden]{display:none}
-@media(max-width:699px){.hero-ad.has-ad{display:block!important;width:100%;margin:12px 0;visibility:visible;opacity:1}.hero-ad.has-ad img{display:block!important;visibility:visible!important;opacity:1!important;width:100%;height:auto;max-height:none;object-fit:contain}.ad-copy{padding:12px}.ad-copy h2{font-size:20px}.ad-copy p{font-size:14px;line-height:1.7}}
+@media(max-width:699px){.hero-ad{display:block!important;width:100%;max-width:100%;margin:12px 0;visibility:visible;opacity:1}.hero-ad img{display:block!important;visibility:visible!important;opacity:1!important;width:100%;max-width:100%;height:auto;min-height:1px;max-height:none;object-fit:contain}.ad-copy{padding:12px}.ad-copy h2{font-size:20px}.ad-copy p{font-size:14px;line-height:1.7}}
 .ad-copy{padding:14px}
 .section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -65,7 +65,7 @@ footer{text-align:center;padding:25px;color:#7f9ab8;background:#071326;margin-to
  </div>
 </header>
 <main class="container">
- <section class="hero-ad" id="heroAd"><img id="adImage" alt="إعلان"><div class="ad-copy"><h2 id="adTitle"></h2><p id="adText"></p><a id="adLink" class="mainbtn" target="_blank" rel="noopener" style="display:none;text-decoration:none">التفاصيل</a></div></section>
+ <section class="hero-ad" id="heroAd"><img id="adImage" alt="إعلان" loading="eager" decoding="async"><div class="ad-copy"><h2 id="adTitle"></h2><p id="adText"></p><a id="adLink" class="mainbtn" target="_blank" rel="noopener" style="display:none;text-decoration:none">التفاصيل</a></div></section>
  <h2>🎮 عالم ألعاب البلايستيشن 4</h2>
  <p>اختار ألعابك واجمع طلبك وأرسله إلينا مباشرة.</p>
  <input class="search" id="search" placeholder="🔍 ابحث عن اسم اللعبة..." oninput="currentPage=1;renderGames()">
@@ -186,22 +186,32 @@ async function saveAd(){if(!isAdmin)return;const ad={title:$("adEditTitle").valu
 async function removeAd(){if(!confirm("إزالة إعلان الصفحة الرئيسية؟"))return;try{await window.saveFirebaseAd(null);$("heroAd").style.display="none";}catch(e){alert("تعذر إزالة الإعلان: "+e.message);}}
 function showAd(ad){
   const box=$("heroAd"),img=$("adImage");
-  if(!ad||(!ad.image&&!ad.title&&!ad.text)){
-    box.classList.remove("has-ad");
+  const imageUrl=String(ad?.image||"").trim();
+  if(!ad||(!imageUrl&&!ad.title&&!ad.text)){
     box.style.display="none";
     img.removeAttribute("src");
     img.hidden=true;
     return;
   }
-  box.classList.add("has-ad");
+
   box.style.display="block";
-  img.hidden=!ad.image;
-  img.onerror=()=>{img.hidden=true;console.warn("تعذر تحميل صورة الإعلان:",ad.image);};
-  if(ad.image){
-    img.onload=()=>{img.hidden=false;box.style.display="block";};
-    const imagePath=safeImage(ad.image);
-    img.src=imagePath;
+  box.style.visibility="visible";
+  box.classList.add("has-ad");
+  img.hidden=!imageUrl;
+  img.onerror=()=>{
+    img.hidden=true;
+    console.warn("تعذر تحميل صورة الإعلان:",imageUrl);
+  };
+  img.onload=()=>{
+    img.hidden=false;
+    box.style.display="block";
+    box.style.visibility="visible";
+  };
+
+  if(imageUrl){
+    img.src=safeImage(imageUrl);
   }
+
   $("adTitle").textContent=ad.title||"";
   $("adText").textContent=ad.text||"";
   $("adLink").style.display=ad.link?"inline-block":"none";
