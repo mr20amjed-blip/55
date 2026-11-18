@@ -14,10 +14,10 @@ header{background:#07152b;border-bottom:2px solid #087cff}
 .nav button:hover,.category.active{background:#087cff}
 .container{max-width:1200px;margin:auto;padding:16px}
 h2{color:#36a2ff}
-.search{width:100%;padding:14px;border-radius:10px;background:#101f35;border:1px solid #1765a7;color:white;font-size:16px;margin:12px 0}
+.search,.admin input,.admin select,.admin textarea{width:100%;padding:14px;border-radius:10px;background:#101f35;border:1px solid #1765a7;color:white;font-size:16px;margin:8px 0 13px}
 .categories{display:flex;gap:8px;overflow-x:auto;padding:10px 0 18px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:13px}
-.game{background:#101d32;border:1px solid #193b60;border-radius:12px;overflow:hidden}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.game{background:#101d32;border:1px solid #193b60;border-radius:12px;overflow:hidden;min-width:0}
 .game img{width:100%;height:190px;object-fit:cover;background:#172b44}
 .game-info{padding:10px}
 .game h3{font-size:14px;min-height:34px;margin:4px 0 9px}
@@ -27,16 +27,29 @@ h2{color:#36a2ff}
 .empty{text-align:center;padding:35px;color:#aabbd0;grid-column:1/-1}
 .cart{position:sticky;bottom:0;background:#102541;border-top:2px solid #087cff;padding:14px;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .mainbtn{background:#087cff;color:white;border:0;border-radius:9px;padding:12px 18px;cursor:pointer;font-weight:bold}
-.whatsapp{background:#168b48}.danger{background:#a52b36}
+.whatsapp{background:#168b48}.danger{background:#a52b36}.secondary{background:#40536d}
 .admin{display:none;background:#101f35;padding:18px;border:1px solid #1765a7;border-radius:12px;margin:20px 0}
-.admin input,.admin select{width:100%;padding:12px;margin:7px 0 13px;background:#07152b;color:white;border:1px solid #27649a;border-radius:7px}
 .admin label{display:block;color:#a9c9ec}
 .admin h3{color:#4daaff}
 .admin-actions{display:flex;gap:8px;flex-wrap:wrap}
 .manage-row{padding:10px;border-bottom:1px solid #345}
 .status{margin:10px 0;padding:10px;border-radius:8px;background:#172b44;color:#c7e2ff}
+.hero-ad{display:none;margin:16px 0;border:1px solid #1765a7;border-radius:14px;overflow:hidden;background:#102541}
+.hero-ad img{width:100%;max-height:260px;object-fit:cover;display:block}
+.ad-copy{padding:14px}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.mini-card{background:#102541;border:1px solid #193b60;border-radius:10px;padding:12px}
+.pagination{display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;margin:20px 0}
+.pagination button{background:#102747;color:white;border:1px solid #1765a7;border-radius:8px;padding:9px 13px}
+.pagination button.active{background:#087cff}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.stat{background:#172b44;border-radius:10px;padding:14px;text-align:center}
+.stat strong{display:block;color:#5bb5ff;font-size:23px;margin-top:6px}
+.favbtn{float:left;background:#263d5a;border:0;color:white;border-radius:7px;padding:6px 9px;cursor:pointer}
 footer{text-align:center;padding:25px;color:#7f9ab8;background:#071326;margin-top:30px}
-@media(min-width:700px){.grid{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}.game img{height:240px}}
+@media(min-width:700px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.game img{height:240px}.cards{grid-template-columns:repeat(3,minmax(0,1fr))}.stats{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(min-width:1000px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 </style>
 </head>
 <body>
@@ -45,172 +58,160 @@ footer{text-align:center;padding:25px;color:#7f9ab8;background:#071326;margin-to
  <div class="nav">
   <strong>🎮 أمجد للألعاب</strong>
   <button onclick="showAll()">الرئيسية</button>
+  <button onclick="showFavorites()">المفضلة ❤️</button>
   <button onclick="toggleAdmin()">إدارة الألعاب ⚙️</button>
  </div>
 </header>
 <main class="container">
+ <section class="hero-ad" id="heroAd"><img id="adImage" alt="إعلان"><div class="ad-copy"><h2 id="adTitle"></h2><p id="adText"></p><a id="adLink" class="mainbtn" target="_blank" rel="noopener" style="display:none;text-decoration:none">التفاصيل</a></div></section>
  <h2>🎮 عالم ألعاب البلايستيشن 4</h2>
  <p>اختار ألعابك واجمع طلبك وأرسله إلينا مباشرة.</p>
- <input class="search" id="search" placeholder="🔍 ابحث عن اسم اللعبة..." oninput="renderGames()">
+ <input class="search" id="search" placeholder="🔍 ابحث عن اسم اللعبة..." oninput="currentPage=1;renderGames()">
  <div class="categories" id="categories"></div>
+ <section id="specialSections">
+  <div class="section-head"><h2>🆕 أحدث الألعاب</h2></div><div class="cards" id="newGames"></div>
+  <div class="section-head"><h2>🔥 الأكثر طلباً</h2></div><div class="cards" id="popularGames"></div>
+ </section>
+ <div class="section-head"><h2 id="gamesHeading">كل الألعاب</h2><span class="size" id="pageInfo"></span></div>
  <section class="grid" id="games"><div class="empty">جاري تحميل الألعاب...</div></section>
-
+ <div class="pagination" id="pagination"></div>
+ <section class="mini-card" style="margin-top:22px">
+  <h2>🎯 ما لكيت لعبتك؟</h2><p>اكتب اسم اللعبة المطلوبة ونوصل طلبك مباشرة على واتساب.</p>
+  <input class="search" id="missingGame" placeholder="اكتب اسم اللعبة">
+  <button class="mainbtn whatsapp" onclick="requestMissingGame()">اطلب لعبتك عبر واتساب</button>
+ </section>
  <section class="admin" id="admin">
   <h2>⚙️ لوحة إدارة أمجد للألعاب</h2>
-  <div id="loginBox">
-   <h3>دخول المدير</h3>
-   <label>البريد الإلكتروني</label>
-   <input id="adminEmail" type="email" autocomplete="username" placeholder="البريد الإلكتروني">
-   <label>كلمة المرور</label>
-   <input id="adminPassword" type="password" autocomplete="current-password" placeholder="كلمة المرور">
+  <div id="loginBox"><h3>دخول المدير</h3>
+   <label>البريد الإلكتروني</label><input id="adminEmail" type="email" autocomplete="username" placeholder="البريد الإلكتروني">
+   <label>كلمة المرور</label><input id="adminPassword" type="password" autocomplete="current-password" placeholder="كلمة المرور">
    <button class="mainbtn" onclick="adminLogin()">تسجيل الدخول</button>
    <div class="status">الدخول مخصص لحساب المدير فقط.</div>
   </div>
   <div id="editorBox" style="display:none">
-   <div class="status">تم تسجيل الدخول كمدير. تقدر تضيف وتعدّل وتحذف الألعاب.</div>
+   <div class="status">تم تسجيل الدخول كمدير. تقدر تدير الألعاب والأقسام والإعلان.</div>
    <button class="mainbtn danger" onclick="adminLogout()">تسجيل الخروج</button>
+   <h3>📊 إحصائيات الموقع</h3><div class="stats" id="stats"></div>
    <h3>إضافة لعبة جديدة / تعديل لعبة</h3>
    <label>اسم اللعبة</label><input id="gameName" placeholder="مثلاً: God of War">
    <label>حجم اللعبة GB</label><input id="gameSize" type="number" min="0.1" step="0.1" placeholder="مثلاً: 45">
    <label>تصنيف اللعبة</label><select id="gameCategory"></select>
-   <label>مسار صورة اللعبة أو رابطها</label>
-   <input id="gameImage" type="text" placeholder="مثلاً: images/god-of-war.jpg أو رابط الصورة">
-   <div class="status">ارفع الصورة أولاً إلى مستودع GitHub، ثم اكتب مسارها هنا. مثال: images/game.jpg</div>
-   <div class="admin-actions">
-    <button class="mainbtn" onclick="saveGame()">💾 حفظ اللعبة</button>
-    <button class="mainbtn danger" onclick="cancelEdit()">إلغاء التعديل</button>
-   </div>
+   <label>مسار صورة اللعبة أو رابطها</label><input id="gameImage" type="text" placeholder="مثلاً: images/god-of-war.jpg أو رابط الصورة">
+   <div class="status">ارفع الصورة إلى مستودع GitHub، ثم اكتب مسارها هنا. مثال: images/game.jpg</div>
+   <div class="admin-actions"><button class="mainbtn" onclick="saveGame()">💾 حفظ اللعبة</button><button class="mainbtn danger" onclick="cancelEdit()">إلغاء التعديل</button></div>
+   <h3>إدارة التصنيفات</h3>
+   <label>اسم التصنيف الجديد</label><input id="newCategory" placeholder="مثلاً: ألعاب قتال">
+   <button class="mainbtn" onclick="addCategory()">إضافة تصنيف</button><div id="manageCategories"></div>
+   <h3>إعلان الصفحة الرئيسية</h3>
+   <label>عنوان الإعلان</label><input id="adEditTitle" placeholder="عنوان الإعلان">
+   <label>نص الإعلان</label><textarea id="adEditText" rows="3" placeholder="تفاصيل الإعلان"></textarea>
+   <label>مسار صورة الإعلان في GitHub أو رابطها</label><input id="adEditImage" placeholder="images/ad.jpg">
+   <label>رابط زر الإعلان (اختياري)</label><input id="adEditLink" placeholder="https://...">
+   <div class="admin-actions"><button class="mainbtn" onclick="saveAd()">حفظ الإعلان</button><button class="mainbtn danger" onclick="removeAd()">إزالة الإعلان</button></div>
    <h3>الألعاب الموجودة</h3><div id="manageGames"></div>
   </div>
  </section>
 </main>
-<div class="cart">
- <div><strong>🛒 الألعاب المحددة: <span id="count">0</span></strong><div class="size">الحجم الكلي: <span id="total">0</span> GB</div></div>
- <button class="mainbtn whatsapp" onclick="sendOrder()">إرسال الطلب واتساب</button>
-</div>
+<div class="cart"><div><strong>🛒 الألعاب المحددة: <span id="count">0</span></strong><div class="size">الحجم الكلي: <span id="total">0</span> GB</div></div><button class="mainbtn whatsapp" onclick="sendOrder()">إرسال الطلب واتساب</button></div>
 <footer><h3>أمجد للألعاب 🎮</h3>عالم ألعاب البلايستيشن 4<p>مكتب حمزة الشاوي</p></footer>
-
 <script>
 const WHATSAPP="9647818402769";
-const categories=["الكل","أكشن","مغامرات","حروب","سيارات وسباقات","رعب وزومبي","رياضة وكرة قدم","عالم مفتوح","ألعاب أخرى"];
-let games=[],selected=[],currentCategory="الكل",editId=null,isAdmin=false;
-const $=id=>document.getElementById(id);
-
-function setupCategories(){
- $("categories").innerHTML=categories.map(c=>`<button class="category ${c==="الكل"?"active":""}" onclick="chooseCategory('${c}')">${c}</button>`).join("");
- $("gameCategory").innerHTML=categories.slice(1).map(c=>`<option value="${c}">${c}</option>`).join("");
-}
-function chooseCategory(category){
- currentCategory=category;
- document.querySelectorAll(".category").forEach(b=>b.classList.toggle("active",b.textContent===category));
- renderGames();
-}
-function showAll(){currentCategory="الكل";$("search").value="";chooseCategory("الكل");window.scrollTo({top:0,behavior:"smooth"});}
+const defaultCategories=["أكشن","مغامرات","حروب","سيارات وسباقات","رعب وزومبي","رياضة وكرة قدم","عالم مفتوح","ألعاب أخرى"];
+let categories=["الكل",...defaultCategories],games=[],selected=[],currentCategory="الكل",editId=null,isAdmin=false,currentPage=1,showFavOnly=false,favorites=JSON.parse(localStorage.getItem("amjadFavorites")||"[]"),requests=[];
+const PAGE_SIZE=20,$=id=>document.getElementById(id);
 function escapeHTML(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-function safeImage(src){
- if(!src)return "";
- if(/^https:\/\/|^http:\/\//i.test(src))return src;
- return encodeURI(src.replace(/^\.?\//,""));
+function safeImage(src){if(!src)return "";if(/^https?:\/\//i.test(src))return src;return encodeURI(src.replace(/^\.?\//,""));}
+function setupCategories(){
+ $("categories").innerHTML=['الكل',...categories.filter(c=>c!=="الكل")].map(c=>`<button class="category ${c===currentCategory?"active":""}" onclick="chooseCategory('${escapeHTML(c)}')">${escapeHTML(c)}</button>`).join("");
+ $("gameCategory").innerHTML=categories.filter(c=>c!=="الكل").map(c=>`<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join("");
+ if(!$("gameCategory").value&&categories.length>1)$("gameCategory").value=categories[1];
+ if($("manageCategories"))$("manageCategories").innerHTML=categories.filter(c=>c!=="الكل").map(c=>`<div class="manage-row">${escapeHTML(c)} <button class="mainbtn danger" onclick="deleteCategory('${escapeHTML(c)}')">حذف التصنيف</button></div>`).join("");
 }
+function chooseCategory(c){currentCategory=c;showFavOnly=false;currentPage=1;setupCategories();renderGames();}
+function showAll(){currentCategory="الكل";showFavOnly=false;$("search").value="";currentPage=1;setupCategories();renderGames();window.scrollTo({top:0,behavior:"smooth"});}
+function showFavorites(){showFavOnly=true;currentPage=1;$("gamesHeading").textContent="الألعاب المفضلة ❤️";renderGames();$("games").scrollIntoView({behavior:"smooth"});}
+function toggleFavorite(id){favorites=favorites.includes(id)?favorites.filter(x=>x!==id):[...favorites,id];localStorage.setItem("amjadFavorites",JSON.stringify(favorites));renderGames();renderSpecial();}
+function renderSpecial(){
+ const newest=[...games].sort((a,b)=>(Number(b.createdAt)||0)-(Number(a.createdAt)||0)).slice(0,3);
+ const popular=[...games].sort((a,b)=>(Number(b.requestCount)||0)-(Number(a.requestCount)||0)).filter(g=>(g.requestCount||0)>0).slice(0,3);
+ $("newGames").innerHTML=newest.length?newest.map(miniGame).join(""):'<div class="empty">ستظهر الألعاب الجديدة هنا.</div>';
+ $("popularGames").innerHTML=popular.length?popular.map(miniGame).join(""):'<div class="empty">ستظهر الألعاب الأكثر طلباً هنا.</div>';
+}
+function miniGame(g){return `<div class="mini-card"><strong>${escapeHTML(g.name)}</strong><div class="size">${Number(g.size)||0} GB</div></div>`;}
 function renderGames(){
- const search=$("search").value.toLowerCase();
- const filtered=games.filter(g=>(currentCategory==="الكل"||g.category===currentCategory)&&String(g.name||"").toLowerCase().includes(search));
- if(!filtered.length){$("games").innerHTML='<div class="empty">لا توجد ألعاب حالياً في هذا القسم.</div>';updateCart();return;}
- $("games").innerHTML=filtered.map(g=>`<article class="game">
-  <img src="${escapeHTML(safeImage(g.image))}" alt="${escapeHTML(g.name)}" onerror="this.style.visibility='hidden'">
-  <div class="game-info"><h3>${escapeHTML(g.name)}</h3><div class="size">${Number(g.size)||0} GB</div><small>${escapeHTML(g.category)}</small>
-  <label><input type="checkbox" ${selected.includes(g.id)?"checked":""} onchange="selectGame('${g.id}',this.checked)"> تحديد اللعبة</label></div>
- </article>`).join("");
+ const term=$("search").value.toLowerCase();
+ let filtered=games.filter(g=>(currentCategory==="الكل"||g.category===currentCategory)&&String(g.name||"").toLowerCase().includes(term));
+ if(showFavOnly)filtered=filtered.filter(g=>favorites.includes(g.id));
+ const pages=Math.max(1,Math.ceil(filtered.length/PAGE_SIZE));if(currentPage>pages)currentPage=pages;
+ const visible=filtered.slice((currentPage-1)*PAGE_SIZE,currentPage*PAGE_SIZE);
+ $("gamesHeading").textContent=showFavOnly?"الألعاب المفضلة ❤️":currentCategory==="الكل"?"كل الألعاب":currentCategory;
+ $("pageInfo").textContent=`${filtered.length} لعبة`;
+ if(!visible.length)$("games").innerHTML='<div class="empty">لا توجد ألعاب في هذا القسم حالياً.</div>';
+ else $("games").innerHTML=visible.map(g=>`<article class="game"><img src="${escapeHTML(safeImage(g.image))}" alt="${escapeHTML(g.name)}" onerror="this.style.visibility='hidden'"><div class="game-info"><button class="favbtn" onclick="toggleFavorite('${g.id}')">${favorites.includes(g.id)?"❤️":"♡"}</button><h3>${escapeHTML(g.name)}</h3><div class="size">${Number(g.size)||0} GB</div><small>${escapeHTML(g.category)}</small><label><input type="checkbox" ${selected.includes(g.id)?"checked":""} onchange="selectGame('${g.id}',this.checked)"> تحديد اللعبة</label></div></article>`).join("");
+ $("pagination").innerHTML=pages>1?Array.from({length:pages},(_,i)=>`<button class="${currentPage===i+1?"active":""}" onclick="currentPage=${i+1};renderGames()">${i+1}</button>`).join(""):"";
  updateCart();
 }
 function selectGame(id,checked){if(checked){if(!selected.includes(id))selected.push(id);}else selected=selected.filter(x=>x!==id);updateCart();}
 function updateCart(){const chosen=games.filter(g=>selected.includes(g.id));$("count").textContent=chosen.length;$("total").textContent=chosen.reduce((s,g)=>s+(Number(g.size)||0),0).toFixed(2);}
-function sendOrder(){
+async function sendOrder(){
  const chosen=games.filter(g=>selected.includes(g.id));if(!chosen.length){alert("حدد لعبة واحدة على الأقل.");return;}
  const total=chosen.reduce((s,g)=>s+(Number(g.size)||0),0);
- let message="🎮 طلب ألعاب جديد - أمجد للألعاب\n\n";
- chosen.forEach((g,i)=>message+=`${i+1}- ${g.name} | ${g.size} GB\n`);
+ let message="🎮 طلب ألعاب جديد - أمجد للألعاب\n\n";chosen.forEach((g,i)=>message+=`${i+1}- ${g.name} | ${g.size} GB\n`);
  message+=`\nعدد الألعاب: ${chosen.length}\nالحجم الكلي: ${total.toFixed(2)} GB\n\nأرجو تأكيد الطلب. شكراً لكم ❤️`;
  window.open("https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(message),"_blank");
+ try{for(const g of chosen)await window.countFirebaseRequest(g.id);}catch(e){console.warn("تعذر تحديث عداد الطلبات",e);}
 }
+function requestMissingGame(){const name=$("missingGame").value.trim();if(!name){alert("اكتب اسم اللعبة أولاً.");return;}const msg=`🎮 طلب لعبة غير موجودة بالموقع\nاسم اللعبة: ${name}\nمن أمجد للألعاب`;window.open("https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(msg),"_blank");window.saveMissingRequest(name).catch(console.warn);}
 function toggleAdmin(){const a=$("admin");a.style.display=a.style.display==="block"?"none":"block";a.scrollIntoView({behavior:"smooth"});}
-function setAdminUI(value){
- isAdmin=value;$("loginBox").style.display=value?"none":"block";$("editorBox").style.display=value?"block":"none";
- if(value)renderManage();
-}
-async function adminLogin(){
- const email=$("adminEmail").value.trim(),password=$("adminPassword").value;
- if(!email||!password){alert("اكتب البريد الإلكتروني وكلمة المرور.");return;}
- try{await window.firebaseAdminLogin(email,password);$("adminPassword").value="";}catch(e){alert("تعذر تسجيل الدخول: "+e.message);}
-}
+function setAdminUI(value){isAdmin=value;$("loginBox").style.display=value?"none":"block";$("editorBox").style.display=value?"block":"none";if(value){renderManage();renderStats();}}
+async function adminLogin(){const email=$("adminEmail").value.trim(),password=$("adminPassword").value;if(!email||!password){alert("اكتب البريد الإلكتروني وكلمة المرور.");return;}try{await window.firebaseAdminLogin(email,password);$("adminPassword").value="";}catch(e){alert("تعذر تسجيل الدخول: "+e.message);}}
 async function adminLogout(){try{await window.firebaseAdminLogout();}catch(e){alert(e.message);}}
 async function saveGame(){
  if(!isAdmin){alert("سجّل دخول المدير أولاً.");return;}
  const name=$("gameName").value.trim(),size=Number($("gameSize").value),category=$("gameCategory").value,image=$("gameImage").value.trim();
  if(!name||!size||size<=0||!image){alert("أدخل اسم اللعبة والحجم ومسار الصورة.");return;}
- const game={name,size,category,image};
- try{
-  if(editId)await window.updateFirebaseGame(editId,game);else await window.addFirebaseGame(game);
-  await refreshGames();cancelEdit();renderManage();alert("تم حفظ اللعبة بنجاح.");
- }catch(e){alert("تعذر الحفظ: "+e.message);}
+ const old=games.find(g=>g.id===editId),game={name,size,category,image,createdAt:old?.createdAt||Date.now(),requestCount:old?.requestCount||0};
+ try{if(editId)await window.updateFirebaseGame(editId,game);else await window.addFirebaseGame(game);await refreshGames();cancelEdit();renderManage();alert("تم حفظ اللعبة بنجاح.");}catch(e){alert("تعذر الحفظ: "+e.message);}
 }
-function renderManage(){
- $("manageGames").innerHTML=games.map(g=>`<div class="manage-row"><strong>${escapeHTML(g.name)}</strong> - ${Number(g.size)||0} GB
- <div class="admin-actions" style="margin-top:8px"><button class="mainbtn" onclick="editGame('${g.id}')">تعديل</button><button class="mainbtn danger" onclick="deleteGame('${g.id}')">حذف</button></div></div>`).join("")||"لا توجد ألعاب مضافة.";
-}
+function renderManage(){$("manageGames").innerHTML=games.map(g=>`<div class="manage-row"><strong>${escapeHTML(g.name)}</strong> - ${Number(g.size)||0} GB<div class="admin-actions" style="margin-top:8px"><button class="mainbtn" onclick="editGame('${g.id}')">تعديل</button><button class="mainbtn danger" onclick="deleteGame('${g.id}')">حذف</button></div></div>`).join("")||"لا توجد ألعاب مضافة.";}
+function renderStats(){$("stats").innerHTML=`<div class="stat">عدد الألعاب<strong>${games.length}</strong></div><div class="stat">عدد التصنيفات<strong>${categories.length-1}</strong></div><div class="stat">المفضلة على هذا الجهاز<strong>${favorites.length}</strong></div><div class="stat">طلبات الألعاب الجديدة<strong>${requests.length}</strong></div>`;}
 function editGame(id){const g=games.find(x=>x.id===id);if(!g)return;editId=id;$("gameName").value=g.name;$("gameSize").value=g.size;$("gameCategory").value=g.category;$("gameImage").value=g.image||"";$("admin").scrollIntoView({behavior:"smooth"});}
 async function deleteGame(id){if(!isAdmin||!confirm("هل تريد حذف هذه اللعبة؟"))return;try{await window.deleteFirebaseGame(id);selected=selected.filter(x=>x!==id);await refreshGames();renderManage();}catch(e){alert("تعذر الحذف: "+e.message);}}
 function cancelEdit(){editId=null;$("gameName").value="";$("gameSize").value="";$("gameImage").value="";}
-async function refreshGames(){
- try{games=await window.loadFirebaseGames();renderGames();if(isAdmin)renderManage();}
- catch(e){$("games").innerHTML='<div class="empty">تعذر تحميل الألعاب. تحقق من اتصال Firebase وقواعد Firestore.</div>';console.error(e);}
-}
+async function addCategory(){const name=$("newCategory").value.trim();if(!name||name==="الكل"){alert("اكتب اسم تصنيف صحيح.");return;}if(categories.includes(name)){alert("هذا التصنيف موجود.");return;}try{await window.addFirebaseCategory(name);categories.push(name);$("newCategory").value="";setupCategories();}catch(e){alert("تعذر إضافة التصنيف: "+e.message);}}
+async function deleteCategory(name){if(!confirm("حذف التصنيف؟ الألعاب المرتبطة به لن تُحذف."))return;try{await window.deleteFirebaseCategory(name);categories=categories.filter(c=>c!==name);setupCategories();renderGames();}catch(e){alert("تعذر حذف التصنيف: "+e.message);}}
+async function saveAd(){if(!isAdmin)return;const ad={title:$("adEditTitle").value.trim(),text:$("adEditText").value.trim(),image:$("adEditImage").value.trim(),link:$("adEditLink").value.trim()};try{await window.saveFirebaseAd(ad);showAd(ad);alert("تم حفظ الإعلان.");}catch(e){alert("تعذر حفظ الإعلان: "+e.message);}}
+async function removeAd(){if(!confirm("إزالة إعلان الصفحة الرئيسية؟"))return;try{await window.saveFirebaseAd(null);$("heroAd").style.display="none";}catch(e){alert("تعذر إزالة الإعلان: "+e.message);}}
+function showAd(ad){if(!ad||!ad.image){$("heroAd").style.display="none";return;}$("heroAd").style.display="block";$("adImage").src=safeImage(ad.image);$("adTitle").textContent=ad.title||"";$("adText").textContent=ad.text||"";$("adLink").style.display=ad.link?"inline-block":"none";$("adLink").href=ad.link||"#";}
+async function refreshGames(){try{games=await window.loadFirebaseGames();const counts={};requests.forEach(r=>{if(r.gameId)counts[r.gameId]=(counts[r.gameId]||0)+1;});games=games.map(g=>({...g,requestCount:counts[g.id]||g.requestCount||0}));renderGames();renderSpecial();if(isAdmin)renderManage();}catch(e){$("games").innerHTML='<div class="empty">تعذر تحميل الألعاب. تحقق من اتصال Firebase وقواعد Firestore.</div>';console.error(e);}}
+async function loadExtras(){try{const data=await window.loadFirebaseExtras();if(data.categories?.length)categories=["الكل",...data.categories];requests=data.requests||[];showAd(data.ad);if(data.ad){$("adEditTitle").value=data.ad.title||"";$("adEditText").value=data.ad.text||"";$("adEditImage").value=data.ad.image||"";$("adEditLink").value=data.ad.link||"";}setupCategories();renderStats();}catch(e){console.warn("تعذر تحميل الإضافات",e);setupCategories();}}
 setupCategories();
 </script>
-
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/13.3.0/firebase-app.js";
 import {getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/13.3.0/firebase-auth.js";
-import {getFirestore,collection,getDocs,addDoc,updateDoc,deleteDoc,doc} from "https://www.gstatic.com/firebasejs/13.3.0/firebase-firestore.js";
-
-const firebaseConfig={
- apiKey:"AIzaSyDPhZlgFtDDvc7iaB24vlbGRwv66-KeJYE",
- authDomain:"amjad-games.firebaseapp.com",
- projectId:"amjad-games",
- storageBucket:"amjad-games.firebasestorage.app",
- messagingSenderId:"38836721122",
- appId:"1:38836721122:web:7395acf82fc89f974dd5bb",
- measurementId:"G-D9MBJKLHPT"
-};
+import {getFirestore,collection,getDocs,addDoc,updateDoc,deleteDoc,doc,setDoc,getDoc,increment} from "https://www.gstatic.com/firebasejs/13.3.0/firebase-firestore.js";
+const firebaseConfig={apiKey:"AIzaSyDPhZlgFtDDvc7iaB24vlbGRwv66-KeJYE",authDomain:"amjad-games.firebaseapp.com",projectId:"amjad-games",storageBucket:"amjad-games.firebasestorage.app",messagingSenderId:"38836721122",appId:"1:38836721122:web:7395acf82fc89f974dd5bb",measurementId:"G-D9MBJKLHPT"};
 const ADMIN_UID="CsB3qSlk1ERjwVUO1HHAHHEsCni2";
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
-window.firebaseAdminLogin=async(email,password)=>{
- const credential=await signInWithEmailAndPassword(auth,email,password);
- if(credential.user.uid!==ADMIN_UID){await signOut(auth);throw new Error("هذا الحساب ليس حساب المدير المصرّح به.");}
-};
+function requireAdmin(){if(!auth.currentUser||auth.currentUser.uid!==ADMIN_UID)throw new Error("غير مصرح.");}
+window.firebaseAdminLogin=async(email,password)=>{const credential=await signInWithEmailAndPassword(auth,email,password);if(credential.user.uid!==ADMIN_UID){await signOut(auth);throw new Error("هذا الحساب ليس حساب المدير المصرّح به.");}};
 window.firebaseAdminLogout=()=>signOut(auth);
-window.loadFirebaseGames=async()=>{
- const snapshot=await getDocs(collection(db,"games"));
- return snapshot.docs.map(item=>({id:item.id,...item.data()}));
+window.loadFirebaseGames=async()=>{const snapshot=await getDocs(collection(db,"games"));return snapshot.docs.map(item=>({id:item.id,...item.data()}));};
+window.addFirebaseGame=async game=>{requireAdmin();return addDoc(collection(db,"games"),game);};
+window.updateFirebaseGame=async(id,game)=>{requireAdmin();return updateDoc(doc(db,"games",id),game);};
+window.deleteFirebaseGame=async id=>{requireAdmin();return deleteDoc(doc(db,"games",id));};
+window.countFirebaseRequest=async id=>{const snap=await getDoc(doc(db,"games",id));if(snap.exists())return addDoc(collection(db,"requests"),{gameId:id,gameName:snap.data().name||"",createdAt:Date.now()});};
+window.loadFirebaseExtras=async()=>{
+ const [cats,ad,req]=await Promise.all([getDocs(collection(db,"categories")),getDoc(doc(db,"settings","homeAd")),getDocs(collection(db,"requests"))]);
+ return {categories:cats.docs.map(d=>d.data().name).filter(Boolean),ad:ad.exists()?ad.data().ad:null,requests:req.docs.map(d=>d.data())};
 };
-window.addFirebaseGame=async game=>{
- if(!auth.currentUser||auth.currentUser.uid!==ADMIN_UID)throw new Error("غير مصرح.");
- return addDoc(collection(db,"games"),game);
-};
-window.updateFirebaseGame=async(id,game)=>{
- if(!auth.currentUser||auth.currentUser.uid!==ADMIN_UID)throw new Error("غير مصرح.");
- return updateDoc(doc(db,"games",id),game);
-};
-window.deleteFirebaseGame=async id=>{
- if(!auth.currentUser||auth.currentUser.uid!==ADMIN_UID)throw new Error("غير مصرح.");
- return deleteDoc(doc(db,"games",id));
-};
-onAuthStateChanged(auth,user=>{
- const allowed=!!user&&user.uid===ADMIN_UID;
- if(user&&!allowed)signOut(auth);
- if(typeof setAdminUI==="function")setAdminUI(allowed);
-});
-await refreshGames();
+window.addFirebaseCategory=async name=>{requireAdmin();return addDoc(collection(db,"categories"),{name});};
+window.deleteFirebaseCategory=async name=>{requireAdmin();const snap=await getDocs(collection(db,"categories"));const target=snap.docs.find(d=>d.data().name===name);if(target)await deleteDoc(doc(db,"categories",target.id));};
+window.saveFirebaseAd=async ad=>{requireAdmin();return setDoc(doc(db,"settings","homeAd"),{ad});};
+window.saveMissingRequest=async name=>addDoc(collection(db,"requests"),{name,createdAt:Date.now()});
+onAuthStateChanged(auth,user=>{const allowed=!!user&&user.uid===ADMIN_UID;if(user&&!allowed)signOut(auth);if(typeof setAdminUI==="function")setAdminUI(allowed);});
+await loadExtras();await refreshGames();
 </script>
 </body>
 </html>
