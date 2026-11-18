@@ -37,7 +37,7 @@ h2{color:#36a2ff}
 .hero-ad{display:none;width:100%;min-width:0;margin:16px 0;border:1px solid #1765a7;border-radius:14px;overflow:hidden;background:#102541}
 .hero-ad img{width:100%;height:auto;max-height:none;object-fit:contain;display:block}
 .hero-ad img[hidden]{display:none}
-@media(max-width:699px){.hero-ad{margin:12px 0}.hero-ad img{width:100%;height:auto;max-height:none;object-fit:contain}.ad-copy{padding:12px}.ad-copy h2{font-size:20px}.ad-copy p{font-size:14px;line-height:1.7}}
+@media(max-width:699px){.hero-ad.has-ad{display:block!important;width:100%;margin:12px 0;visibility:visible;opacity:1}.hero-ad.has-ad img{display:block!important;visibility:visible!important;opacity:1!important;width:100%;height:auto;max-height:none;object-fit:contain}.ad-copy{padding:12px}.ad-copy h2{font-size:20px}.ad-copy p{font-size:14px;line-height:1.7}}
 .ad-copy{padding:14px}
 .section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -185,12 +185,23 @@ async function deleteCategory(name){if(!confirm("حذف التصنيف؟ الأ�
 async function saveAd(){if(!isAdmin)return;const ad={title:$("adEditTitle").value.trim(),text:$("adEditText").value.trim(),image:$("adEditImage").value.trim(),link:$("adEditLink").value.trim()};try{await window.saveFirebaseAd(ad);showAd(ad);alert("تم حفظ الإعلان.");}catch(e){alert("تعذر حفظ الإعلان: "+e.message);}}
 async function removeAd(){if(!confirm("إزالة إعلان الصفحة الرئيسية؟"))return;try{await window.saveFirebaseAd(null);$("heroAd").style.display="none";}catch(e){alert("تعذر إزالة الإعلان: "+e.message);}}
 function showAd(ad){
-  if(!ad||(!ad.image&&!ad.title&&!ad.text)){$("heroAd").style.display="none";return;}
-  $("heroAd").style.display="block";
-  const img=$("adImage");
+  const box=$("heroAd"),img=$("adImage");
+  if(!ad||(!ad.image&&!ad.title&&!ad.text)){
+    box.classList.remove("has-ad");
+    box.style.display="none";
+    img.removeAttribute("src");
+    img.hidden=true;
+    return;
+  }
+  box.classList.add("has-ad");
+  box.style.display="block";
   img.hidden=!ad.image;
-  img.onerror=()=>{img.hidden=true;};
-  if(ad.image){img.src=safeImage(ad.image);}
+  img.onerror=()=>{img.hidden=true;console.warn("تعذر تحميل صورة الإعلان:",ad.image);};
+  if(ad.image){
+    img.onload=()=>{img.hidden=false;box.style.display="block";};
+    const imagePath=safeImage(ad.image);
+    img.src=imagePath;
+  }
   $("adTitle").textContent=ad.title||"";
   $("adText").textContent=ad.text||"";
   $("adLink").style.display=ad.link?"inline-block":"none";
